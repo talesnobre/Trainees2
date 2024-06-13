@@ -4,7 +4,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.ensemble import RandomForestClassifier
 from joblib import dump, load
 
-df = pd.read_csv("Trainees2\Projeto Final\data\quest_new.csv", encoding='ISO-8859-1')
+df = pd.read_csv("Trainees2\Projeto Final\data\quest.csv", encoding='ISO-8859-1')
 
 X = df.iloc[:, :-1]
 y = df.iloc[:, -1]

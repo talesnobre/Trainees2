@@ -7,22 +7,27 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RepeatedStratifiedKFold
 from joblib import dump, load
+from sklearn.metrics import confusion_matrix, accuracy_score
 
-df = pd.read_csv("./data/quest.csv", encoding='ISO-8859-1')
 
-# Separando as colunas entre X e y
-X = df.iloc[:, 0:60]
-y = df[60]
+df = pd.read_csv("Trainees2\Projeto Final\data\quest.csv", encoding='ISO-8859-1')
+
+X = df.iloc[:, :-1]
+y = df.iloc[:, -1]
+
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
 
 classifier = LogisticRegression(multi_class='multinomial', solver='lbfgs')
 classifier.fit(X_train, y_train)
 
-# Salvar o Modelo
-dump(classifier, 'logistisc-regression.joblib')
+dump(classifier, 'logistic-regression.joblib')
 
-# Chamar o Modelo
-classifier = load('random_forest_model.joblib')
+classifier = load('logistic-regression.joblib')
 
+y_pred = classifier.predict(X_test)
 
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+accuracy = accuracy_score(y_test, y_pred)
+print(accuracy)

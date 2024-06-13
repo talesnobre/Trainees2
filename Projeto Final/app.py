@@ -2,11 +2,15 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# Carregar o modelo treinado salvo com joblib
-model = joblib.load('checkpoints/random_forest_model.joblib')
+# Load models
+logistic_model = joblib.load('checkpoints/logistic-regression.joblib')
+random_forest_model = joblib.load('checkpoints/random_forest_model.joblib')
 
-df = pd.read_csv('data/quest_new.csv', encoding='ISO-8859-1')
-df = df.drop('10', axis=1)
+# Load and preprocess the dataset
+df = pd.read_csv('data/quest.csv', encoding='ISO-8859-1')
+df = df.drop('Personalidade', axis=1)
+
+# Define mappings
 value_map = {
     -3: "Discordo Totalmente",
     -2: "Discordo",
@@ -41,11 +45,15 @@ descricoes = {
     'INTJ': 'O tipo INTJ é guiado pela razão e pela lógica e está sempre em busca de adquirir e usar conhecimento. São pessoas muito seguras, que tentam reformar e melhorar o mundo ao seu redor. Embora autoconfiantes, os INTJs podem se sentir desconfortáveis em grandes grupos ou entre pessoas que não conhecem bem. preferem discutir ideias e fatos, ao invés de se envolver em conversas superficiais.',
     'INTP': 'As pessoas com o tipo de personalidade INTP tendem a ser quietas e contidas. Gostam de ideias abstratas e pensamentos profundos sobre teorias e a interação com os outros. Os INTPs são muito criativos, inteligentes, atenciosos e procuram respostas lógicas para as perguntas que surgem em seu ambiente. Em geral, os INTPs são céticos, analíticos e ótimos solucionadores de problemas. Essas pessoas são particularmente úteis quando surgem certas dificuldades no local de trabalho.'
 }
-
-st.title("Questionário")
+st.title("Projeto Final - Trainees II")
+st.markdown("Projeto final da diretoria de Trainees II, da TAIL. Nessa pesquisa, você deve responder o grau que você identifica com as seguintes afirmações, sendo -3 algo que você discorda totalmente que te define, e 3 algo que você concorda muito que está de acordo com você.")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
+st.write("")
 
 responses = []
-
 for column in df.columns:
     response = st.slider(
         f"{column}",
@@ -57,19 +65,25 @@ for column in df.columns:
     responses.append(response)
 
 if st.button('Enviar'):
-    # Converta as respostas para um DataFrame
     new_row = pd.Series(responses, index=df.columns)
     new_df = pd.DataFrame([new_row])
     
-    # Salve as novas respostas em um arquivo CSV
-    new_df.to_csv('new_row.csv', index=False)
+    new_df.to_csv('data/nova_linha.csv', index=False)
     
-    # Use o modelo carregado para prever a classe de personalidade
-    predicted_class = model.predict(new_df)[0]
+    # Predict using both models
+    logistic_prediction = logistic_model.predict(new_df)[0]
+    random_forest_prediction = random_forest_model.predict(new_df)[0]
     
-    predicted_class_name = mapa[predicted_class]
-    predicted_class_description = descricoes[predicted_class_name]
+    # Get personality names and descriptions
+    logistic_class_name = mapa[logistic_prediction]
+    logistic_class_description = descricoes[logistic_class_name]
     
-    # Exiba os resultados
-    st.write(f'Sua personalidade se enquadra em: {predicted_class_name}')
-    st.write(predicted_class_description)
+    random_forest_class_name = mapa[random_forest_prediction]
+    random_forest_class_description = descricoes[random_forest_class_name]
+    
+    # Display results
+    st.write(f'Sua personalidade se enquadra em (Logistic Regression): {logistic_class_name}')
+    st.write(logistic_class_description)
+    
+    st.write(f'Sua personalidade se enquadra em (Random Forest): {random_forest_class_name}')
+    st.write(random_forest_class_description)
