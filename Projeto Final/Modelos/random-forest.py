@@ -3,8 +3,13 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.ensemble import RandomForestClassifier
 from joblib import dump, load
+from sklearn.metrics import f1_score
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
 
-df = pd.read_csv("Trainees2\Projeto Final\data\quest.csv", encoding='ISO-8859-1')
+
+df = pd.read_csv("Projeto Final/data/quest.csv", encoding='ISO-8859-1')
 
 X = df.iloc[:, :-1]
 y = df.iloc[:, -1]
@@ -26,3 +31,10 @@ cm = confusion_matrix(y_test, y_pred)
 print(cm)
 accuracy = accuracy_score(y_test, y_pred)
 print(accuracy)
+
+precision = precision_score(y_test, y_pred, average='macro') 
+print(precision)
+f1 = f1_score(y_test, y_pred, average='macro') 
+print(f1)
+recall = recall_score(y_test, y_pred, average='macro')
+print(recall)
