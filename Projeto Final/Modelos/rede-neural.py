@@ -7,9 +7,9 @@ from tqdm import tqdm
 import numpy as np
 import torch.nn as nn
 from joblib import dump, load
+from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, confusion_matrix
 
-# Load data
-df = pd.read_csv("Projeto Final/data/quest.csv", encoding='ISO-8859-1')
+df = pd.read_csv("Modelos\quest.csv", encoding='ISO-8859-1')
 
 # Mapping personality types to integers
 mapa = {'ESFJ': 0, 'ESFP': 1, 'ESTJ': 2, 'ESTP': 3, 'ENFJ': 4, 'ENFP': 5,
@@ -84,5 +84,19 @@ for epoch in range(1, epochs + 1):
 dump(model, 'rede-neural.joblib')
 
 classifier = load('rede-neural.joblib')
+y_pred = classifier.predict(X_test)
+
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+accuracy = accuracy_score(y_test, y_pred)
+print(accuracy)
+
+precision = precision_score(y_test, y_pred, average='macro') 
+print(precision)
+f1 = f1_score(y_test, y_pred, average='macro') 
+print(f1)
+recall = recall_score(y_test, y_pred, average='macro')
+print(recall)
+
 progress.close()
 

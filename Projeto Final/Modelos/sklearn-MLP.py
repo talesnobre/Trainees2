@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from joblib import dump, load
 from sklearn.metrics import accuracy_score
 
-df = pd.read_csv("final project/Trainees2/Projeto Final/data/quest.csv", encoding='ISO-8859-1')
+df = pd.read_csv("Modelos\quest.csv", encoding='ISO-8859-1')
 
 X = df.iloc[:, :-1]
 y = df.iloc[:, -1]

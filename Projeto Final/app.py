@@ -1,10 +1,15 @@
 import streamlit as st
 import pandas as pd
 import joblib
-
+st.set_page_config(
+    page_title="Trainees II",
+    page_icon="🐋",
+    layout="centered"
+)
 # Load models
 logistic_model = joblib.load('checkpoints/logistic-regression.joblib')
 random_forest_model = joblib.load('checkpoints/random_forest_model.joblib')
+mlp_model = joblib.load('checkpoints\sklearn-MLP.joblib')
 
 # Load and preprocess the dataset
 df = pd.read_csv('data/quest.csv', encoding='ISO-8859-1')
@@ -45,45 +50,185 @@ descricoes = {
     'INTJ': 'O tipo INTJ é guiado pela razão e pela lógica e está sempre em busca de adquirir e usar conhecimento. São pessoas muito seguras, que tentam reformar e melhorar o mundo ao seu redor. Embora autoconfiantes, os INTJs podem se sentir desconfortáveis em grandes grupos ou entre pessoas que não conhecem bem. preferem discutir ideias e fatos, ao invés de se envolver em conversas superficiais.',
     'INTP': 'As pessoas com o tipo de personalidade INTP tendem a ser quietas e contidas. Gostam de ideias abstratas e pensamentos profundos sobre teorias e a interação com os outros. Os INTPs são muito criativos, inteligentes, atenciosos e procuram respostas lógicas para as perguntas que surgem em seu ambiente. Em geral, os INTPs são céticos, analíticos e ótimos solucionadores de problemas. Essas pessoas são particularmente úteis quando surgem certas dificuldades no local de trabalho.'
 }
-st.title("Projeto Final - Trainees II")
-st.markdown("Projeto final da diretoria de Trainees II, da TAIL. Nessa pesquisa, você deve responder o grau que você identifica com as seguintes afirmações, sendo -3 algo que você discorda totalmente que te define, e 3 algo que você concorda muito que está de acordo com você.")
-st.write("")
-st.write("")
-st.write("")
-st.write("")
-st.write("")
 
+
+st.markdown("""
+    <style>
+    body {
+        background-color: #f5f5f5;
+        font-family: 'Arial', sans-serif;
+    }
+    .stApp {
+        max-width: 800px;
+        margin: auto;
+        padding: 2rem;
+        background: #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-radius: 8px;
+    }
+    h1 {
+        text-align: center;
+        color: #38BDFF;
+    }
+    .stButton button {
+        background-color: #38BDFF;
+        color: black;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .stButton button:hover {
+        background-color: #53C3FA;
+        color: black;
+    }
+    .stButton button:active {   
+        background-color: #38BDFF;
+        color: black;
+    }
+    .stMarkdown h2 {
+        color: #38BDFF;
+    }
+    .stMarkdown p {
+        color: black;
+    }
+    .slider-label {
+        color: #38BDFF;
+    }
+    .st-emotion-cache-1dx1gwv{
+        color: black;
+    }
+    .st-as{
+        background: #38BDFF;
+    }
+    .st-emotion-cache-1vzeuhh{
+        background: #38BDFF;
+    }
+    .st-emotion-cache-19rxjzo:focus:not(:active){
+        background: #38BDFF;
+        color: black;
+    }
+    .st-emotion-cache-10y5sf6{
+        color: black;
+    }
+    .st-c6{
+            color: black;}
+.st-emotion-cache-1qg05tj{
+            color: black;}
+    </style>
+    """, unsafe_allow_html=True)
+
+st.title("MBTI - Trainees II")
+st.title("")
+
+st.markdown("""
+    <p>Projeto final da diretoria de Trainees II, da TAIL. Usamos 60.000 dados para criar um modelo de classificação e reduzimos a quantidade de perguntas do teste de acordo com a correlação delas com o resultado.</p>
+    """, unsafe_allow_html=True)
+
+st.markdown("""
+    <p>Nessa pesquisa, você deve responder o grau que você identifica com as seguintes afirmações. Sua resposta varia por um nível de intensidade, entre -3 (Discordo fortemente) e 3 (Concordo fortemente), tendo entre eles o 0 (Neutro)</p>
+    """, unsafe_allow_html=True)
+
+st.markdown("""
+    <p><strong>Para manter a pesquisa fidedigna, tente responder o mínimo de afirmações possíveis com Neutro</strong></p>
+    """, unsafe_allow_html=True)
+st.title("")
+st.title("")
+
+st.markdown("""
+    <p><strong>Início do Questionário:</strong></p>
+    """, unsafe_allow_html=True)
 responses = []
 for column in df.columns:
+    st.markdown(f'<p class="slider-label">{column}</p>', unsafe_allow_html=True)
     response = st.slider(
-        f"{column}",
+        "",
         min_value=-3,
         max_value=3,
-        value=0,  
-        format="%d"
+        value=0,
+        format="%d",
+        key=column  # Adding a unique key for each slider
     )
     responses.append(response)
 
+# Check if the button has been clicked
+if 'button_clicked' not in st.session_state:
+    st.session_state.button_clicked = False
+
+# Display the first button and handle its click
 if st.button('Enviar'):
+    st.session_state.button_clicked = True
     new_row = pd.Series(responses, index=df.columns)
     new_df = pd.DataFrame([new_row])
     
     new_df.to_csv('data/nova_linha.csv', index=False)
-    
-    # Predict using both models
-    logistic_prediction = logistic_model.predict(new_df)[0]
-    random_forest_prediction = random_forest_model.predict(new_df)[0]
-    
-    # Get personality names and descriptions
-    logistic_class_name = mapa[logistic_prediction]
-    logistic_class_description = descricoes[logistic_class_name]
-    
-    random_forest_class_name = mapa[random_forest_prediction]
-    random_forest_class_description = descricoes[random_forest_class_name]
-    
-    # Display results
-    st.write(f'Sua personalidade se enquadra em (Logistic Regression): {logistic_class_name}')
-    st.write(logistic_class_description)
-    
-    st.write(f'Sua personalidade se enquadra em (Random Forest): {random_forest_class_name}')
-    st.write(random_forest_class_description)
+
+    mlp_prediction = mlp_model.predict(new_df)[0]
+    mlp_class_name = mapa[mlp_prediction]
+    mlp_class_description = descricoes[mlp_class_name]
+
+    st.markdown(f'<h2> {mlp_class_name}</h2>', unsafe_allow_html=True)
+    st.write(mlp_class_description)
+
+# Display the second button only if the first button has been clicked
+if st.session_state.button_clicked:
+    model_choice = st.radio(
+        "Escolha um modelo específico para obter um resultado mais aprofundado:",
+        ("Logistic Regression", "Random Forest","Rede Neural", "Mostrar todos",)
+    )
+    if st.button('Mostrar mais informações'):
+        new_row = pd.Series(responses, index=df.columns)
+        new_df = pd.DataFrame([new_row])
+        
+        new_df.to_csv('data/nova_linha.csv', index=False)
+        if model_choice == "Logistic Regression":
+            logistic_prediction = logistic_model.predict(new_df)[0]
+            logistic_class_name = mapa[logistic_prediction]
+            logistic_class_description = descricoes[logistic_class_name]
+            
+            st.markdown(f'<h2>{logistic_class_name}</h2>', unsafe_allow_html=True)
+            st.write(logistic_class_description)
+        
+        elif model_choice == "Random Forest":
+            random_forest_prediction = random_forest_model.predict(new_df)[0]
+            random_forest_class_name = mapa[random_forest_prediction]
+            random_forest_class_description = descricoes[random_forest_class_name]
+            
+            st.markdown(f'<h2> {random_forest_class_name}</h2>', unsafe_allow_html=True)
+            st.write(random_forest_class_description)
+        
+        elif model_choice == "Rede Neural":
+            mlp_prediction = mlp_model.predict(new_df)[0]
+            mlp_class_name = mapa[mlp_prediction]
+            mlp_class_description = descricoes[mlp_class_name]
+
+            st.markdown(f'<h2> {mlp_class_name}</h2>', unsafe_allow_html=True)
+            st.write(mlp_class_description)
+
+        else:
+            logistic_prediction = logistic_model.predict(new_df)[0]
+            random_forest_prediction = random_forest_model.predict(new_df)[0]
+            mlp_prediction = mlp_model.predict(new_df)[0]
+
+            logistic_class_name = mapa[logistic_prediction]
+            logistic_class_description = descricoes[logistic_class_name]
+            
+            random_forest_class_name = mapa[random_forest_prediction]
+            random_forest_class_description = descricoes[random_forest_class_name]
+            
+            mlp_class_name = mapa[mlp_prediction]
+            mlp_class_description = descricoes[mlp_class_name]
+
+
+            st.markdown(f'<h2>Logistic Regression: {logistic_class_name}</h2>', unsafe_allow_html=True)
+            st.write(logistic_class_description)
+            
+            st.markdown(f'<h2>Random Forest: {random_forest_class_name}</h2>', unsafe_allow_html=True)
+            st.write(random_forest_class_description)
+
+            st.markdown(f'<h2>Rede Neural: {mlp_class_name}</h2>', unsafe_allow_html=True)
+            st.write(mlp_class_description)

@@ -33,14 +33,12 @@ y_pred = classifier.predict(X_test)
 
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
+
 accuracy = accuracy_score(y_test, y_pred)
 print(accuracy)
 
 precision = precision_score(y_test, y_pred, average='macro') 
 print(precision)
+
 f1 = f1_score(y_test, y_pred, average='macro') 
 print(f1)
-recall = recall_score(y_test, y_pred, average='macro')
-print(recall)
-
-
